@@ -12,6 +12,7 @@ wavenet = WaveNet()
 
 @app.route('/upload', methods=['POST'])
 def upload_audio():
+    # Handle audio file upload and preprocessing
     file = request.files['audio']
     language = request.form['language']
     audio_data = preprocess_audio(file)
@@ -20,14 +21,18 @@ def upload_audio():
 
 @app.route('/generate', methods=['POST'])
 def generate_speech():
+    # Handle text-to-speech generation
     text = request.json['text']
     language = request.json['language']
     pitch = request.json['pitch']
     speed = request.json['speed']
     tone = request.json['tone']
     
+    # Generate mel-spectrogram from text
     mel_spectrogram = tacotron2.generate_mel_spectrogram(text, language)
+    # Generate audio from mel-spectrogram
     audio = wavenet.generate_audio(mel_spectrogram, pitch, speed, tone)
+    # Post-process the generated audio
     audio = postprocess_audio(audio)
     
     return jsonify({"audio": audio})
